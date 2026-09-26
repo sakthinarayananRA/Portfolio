@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Volume2, VolumeX, Zap, ZapOff, Download, Menu, X, 
-  Code2, Layers, Briefcase, FolderGit2, GraduationCap, Mail, Network, Compass
+  Code2, Layers, Briefcase, FolderGit2, GraduationCap, Mail, Network, Compass, Sun, Moon
 } from 'lucide-react';
 import { soundFX } from '../utils/audio';
 
@@ -14,7 +14,10 @@ export default function Navbar({
   isReduced, 
   onToggleReducedMotion, 
   onOpenResume, 
-  isApiConnected 
+  isApiConnected,
+  theme,
+  onToggleTheme,
+  isSystemSync
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -47,13 +50,33 @@ export default function Navbar({
   ];
 
   const handleNavClick = (e, href) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     soundFX.playClick();
     setMobileMenuOpen(false);
-    const target = document.querySelector(href);
-    if (target) {
-      target.scrollIntoView({ behavior: isReduced ? 'auto' : 'smooth' });
-    }
+
+    const performScroll = () => {
+      const target = document.querySelector(href);
+      if (target) {
+        const headerOffset = 85;
+        const rect = target.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const targetY = rect.top + scrollTop - headerOffset;
+
+        window.scrollTo({
+          top: Math.max(0, targetY),
+          behavior: isReduced ? 'auto' : 'smooth'
+        });
+
+        if (window.history && window.history.pushState) {
+          window.history.pushState(null, '', href);
+        }
+      }
+    };
+
+    // Trigger immediately and also post-drawer collapse for 100% mobile browser reliability
+    performScroll();
+    setTimeout(performScroll, 80);
+    setTimeout(performScroll, 260);
   };
 
   return (
@@ -86,33 +109,50 @@ export default function Navbar({
           }`}
         >
           <div className="flex items-center justify-between">
-            <a 
-              href="#hero" 
-              onClick={(e) => handleNavClick(e, '#hero')} 
-              onMouseEnter={() => soundFX.playHover()} 
-              className="flex items-center gap-2.5 group cursor-pointer"
-            >
-              <div className="relative flex items-center">
-                {/* Outer ambient cosmic glow */}
-                <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-cyan-400/30 blur-sm opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
-                
-                {/* High-tech SR Monogram Emblem */}
-                <div className="relative px-3 py-1.5 rounded-xl bg-[#090d18] border border-cyan-500/60 group-hover:border-cyan-400 flex items-center gap-1.5 shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all duration-300">
-                  <span className="font-mono text-cyan-400 text-xs font-bold opacity-70 group-hover:opacity-100 transition-opacity">&lt;</span>
-                  <span className="font-mono font-black text-sm sm:text-base tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-cyan-400 group-hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]">
-                    SR
-                  </span>
-                  <span className="font-mono text-cyan-400 text-xs font-bold opacity-70 group-hover:opacity-100 transition-opacity">/&gt;</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse ml-0.5 shadow-[0_0_8px_#22d3ee]" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <a 
+                href="#hero" 
+                onClick={(e) => handleNavClick(e, '#hero')} 
+                onMouseEnter={() => soundFX.playHover()} 
+                className="flex items-center gap-2.5 group cursor-pointer"
+              >
+                <div className="relative flex items-center">
+                  {/* Outer ambient cosmic glow */}
+                  <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-cyan-500/40 via-blue-500/40 to-cyan-400/30 blur-sm opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  {/* High-tech SR Monogram Emblem */}
+                  <div className="relative px-3 py-1.5 rounded-xl bg-[#090d18] border border-cyan-500/60 group-hover:border-cyan-400 flex items-center gap-1.5 shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all duration-300">
+                    <span className="font-mono text-cyan-400 text-xs font-bold opacity-70 group-hover:opacity-100 transition-opacity">&lt;</span>
+                    <span className="font-mono font-black text-sm sm:text-base tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-cyan-400 group-hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]">
+                      SR
+                    </span>
+                    <span className="font-mono text-cyan-400 text-xs font-bold opacity-70 group-hover:opacity-100 transition-opacity">/&gt;</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse ml-0.5 shadow-[0_0_8px_#22d3ee]" />
+                  </div>
                 </div>
-              </div>
-              <div className="hidden sm:flex flex-col ml-0.5">
-                {/* <span className="font-mono text-[10px] font-bold tracking-widest text-slate-300 group-hover:text-cyan-300 uppercase transition-colors">
-                  CORE.SYS
-                </span> */}
-                <span className="font-mono text-[9px] text-cyan-400/80 tracking-wider">\n                {(developerInfo?.role || "Software Developer").toUpperCase()}\n              </span>
-              </div>
-            </a>
+                <div className="hidden sm:flex flex-col ml-0.5">
+                  <span className="font-mono text-[9px] text-cyan-400/80 tracking-wider">
+                    {(developerInfo?.role || "Software Developer").toUpperCase()}
+                  </span>
+                </div>
+              </a>
+
+              {/* Mobile Active Breadcrumb Badge */}
+              <button
+                onClick={() => {
+                  soundFX.playClick();
+                  setMobileMenuOpen(!mobileMenuOpen);
+                }}
+                className="flex lg:hidden items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-900/90 border border-cyan-500/40 text-[10px] font-mono text-cyan-300 shadow-sm hover:border-cyan-400 transition-all cursor-pointer"
+                title="Tap to view section matrix"
+              >
+                <Compass className="w-3 h-3 text-cyan-400" />
+                <span className="text-slate-500">/</span>
+                <span className="font-semibold uppercase tracking-wider text-cyan-200 truncate max-w-[80px]">
+                  {activeSection || 'hero'}
+                </span>
+              </button>
+            </div>
 
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center gap-1">
@@ -124,7 +164,7 @@ export default function Navbar({
                     href={link.href}
                     onClick={(e) => handleNavClick(e, link.href)}
                     onMouseEnter={() => soundFX.playHover()}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 cursor-pointer ${
                       isActive 
                         ? 'text-cyan-400 bg-cyan-950/50 border border-cyan-800/60 shadow-sm shadow-cyan-500/10' 
                         : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -137,16 +177,36 @@ export default function Navbar({
             </nav>
 
             {/* Header Right Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <div className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/80 border text-[10px] font-mono ${isApiConnected ? 'text-emerald-400 border-emerald-500/40 bg-emerald-950/20' : 'text-amber-400 border-amber-500/40'}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${isApiConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
                 <span>{isApiConnected ? 'REST API Live' : 'API Connecting'}</span>
               </div>
+
+              {/* Theme Toggle (Automatic System Theme or Manual) */}
+              <button
+                onClick={() => {
+                  soundFX.playClick();
+                  if (onToggleTheme) onToggleTheme();
+                }}
+                title={
+                  theme === 'light' 
+                    ? `Theme: Light (${isSystemSync ? 'System' : 'Manual'}) - Click to toggle` 
+                    : `Theme: Dark (${isSystemSync ? 'System' : 'Manual'}) - Click to toggle`
+                }
+                className={`p-2 rounded-xl border text-xs transition-colors cursor-pointer ${
+                  theme === 'light'
+                    ? 'border-amber-400/60 bg-amber-500/15 text-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.2)]'
+                    : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:text-cyan-400 hover:border-cyan-500/40'
+                }`}
+              >
+                {theme === 'light' ? <Sun className="w-4 h-4 text-amber-300 animate-spin-slow" /> : <Moon className="w-4 h-4" />}
+              </button>
               
               <button
                 onClick={onToggleAudio}
                 title={isAudioMuted ? "Unmute Sound" : "Mute Sound"}
-                className={`p-2 rounded-xl border text-xs transition-colors ${!isAudioMuted ? 'border-cyan-500/40 bg-cyan-950/40 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.2)]' : 'border-slate-800 bg-slate-900/60 text-slate-400'}`}
+                className={`p-2 rounded-xl border text-xs transition-colors cursor-pointer ${!isAudioMuted ? 'border-cyan-500/40 bg-cyan-950/40 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.2)]' : 'border-slate-800 bg-slate-900/60 text-slate-400'}`}
               >
                 {isAudioMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-cyan-400 animate-pulse" />}
               </button>
@@ -154,7 +214,7 @@ export default function Navbar({
               <button
                 onClick={() => { soundFX.playClick(); onToggleReducedMotion(); }}
                 title={isReduced ? "Full Motion" : "Reduced Motion"}
-                className={`p-2 rounded-xl border text-xs transition-colors hidden sm:block ${isReduced ? 'border-amber-500/40 bg-amber-950/30 text-amber-400' : 'border-slate-800 bg-slate-900/60 text-slate-400'}`}
+                className={`p-2 rounded-xl border text-xs transition-colors hidden sm:block cursor-pointer ${isReduced ? 'border-amber-500/40 bg-amber-950/30 text-amber-400' : 'border-slate-800 bg-slate-900/60 text-slate-400'}`}
               >
                 {isReduced ? <ZapOff className="w-4 h-4" /> : <Zap className="w-4 h-4" />}
               </button>
@@ -162,7 +222,7 @@ export default function Navbar({
               <button
                 onClick={() => { soundFX.playModalOpen(); onOpenResume(); }}
                 onMouseEnter={() => soundFX.playHover()}
-                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-md font-mono transition-all"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-md font-mono transition-all cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Resume</span>
@@ -174,7 +234,7 @@ export default function Navbar({
                   setMobileMenuOpen(!mobileMenuOpen); 
                 }}
                 aria-label="Toggle Navigation Menu"
-                className={`p-2 rounded-xl border transition-all duration-200 lg:hidden ${
+                className={`p-2 rounded-xl border transition-all duration-200 lg:hidden cursor-pointer ${
                   mobileMenuOpen 
                     ? 'border-cyan-500/70 bg-cyan-950/50 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
                     : 'border-slate-800 bg-slate-900/80 text-slate-300 hover:border-slate-700'
@@ -202,13 +262,12 @@ export default function Navbar({
                     <Compass className="w-3.5 h-3.5 text-cyan-400" />
                     <span>NAVIGATION MATRIX</span>
                   </div>
-                  <div className="text-[10px] text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded-md border border-slate-800">
-                    {activeSection ? (
-                      <span className="text-cyan-300">#{activeSection}</span>
-                    ) : (
-                      <span>#overview</span>
-                    )}
-                  </div>
+                  <button
+                    onClick={(e) => handleNavClick(e, `#${activeSection || 'hero'}`)}
+                    className="flex items-center gap-1 text-[10px] text-cyan-300 bg-cyan-950/80 px-2.5 py-1 rounded-md border border-cyan-500/50 hover:bg-cyan-900/80 transition-colors cursor-pointer"
+                  >
+                    <span>#{activeSection || 'overview'}</span>
+                  </button>
                 </div>
 
                 {/* Grid of Cyber Navigation Link Cards */}
@@ -224,7 +283,7 @@ export default function Navbar({
                         href={link.href}
                         onClick={(e) => handleNavClick(e, link.href)}
                         onMouseEnter={() => soundFX.playHover()}
-                        className={`group flex items-center gap-2.5 p-2.5 rounded-xl font-mono text-xs transition-all duration-200 border ${
+                        className={`group flex items-center gap-2.5 p-2.5 rounded-xl font-mono text-xs transition-all duration-200 border cursor-pointer ${
                           isLastOdd ? 'col-span-2' : ''
                         } ${
                           isActive
@@ -257,7 +316,9 @@ export default function Navbar({
                     <span className={`w-2 h-2 rounded-full ${isApiConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
                     <span className="text-[10px] text-slate-400">REST API {isApiConnected ? 'ONLINE' : 'OFFLINE'}</span>
                   </div>
-                  <div className="text-[10px] text-cyan-400/90 font-semibold tracking-wider">\n                    {(developerInfo?.role || "Software Developer").toUpperCase()}\n                  </div>
+                  <div className="text-[10px] text-cyan-400/90 font-semibold tracking-wider">
+                    {(developerInfo?.role || "Software Developer").toUpperCase()}
+                  </div>
                 </div>
               </motion.div>
             )}

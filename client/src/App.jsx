@@ -13,12 +13,14 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ResumeModal from './components/ResumeModal';
 import { useReducedMotion } from './hooks/useReducedMotion';
+import { useTheme } from './hooks/useTheme';
 import { soundFX } from './utils/audio';
 import { fetchPortfolio } from './services/api';
 import { ServerCrash, RefreshCw, Activity } from 'lucide-react';
 
 export default function App() {
   const { isReduced, toggleReducedMotion } = useReducedMotion();
+  const { theme, toggleTheme, isSystemSync } = useTheme();
   const [isAudioMuted, setIsAudioMuted] = useState(() => soundFX.getMuted());
   const [activeSection, setActiveSection] = useState('hero');
   const [isResumeOpen, setIsResumeOpen] = useState(false);
@@ -154,7 +156,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#080a10] text-slate-100 relative selection:bg-cyan-500 selection:text-slate-950 font-sans">
       <Cursor3D isReduced={isReduced} />
-      <BackgroundCanvas isReduced={isReduced} />
+      <BackgroundCanvas isReduced={isReduced} theme={theme} />
       <Navbar
         developerInfo={portfolioData.personalInfo}
         activeSection={activeSection}
@@ -164,6 +166,9 @@ export default function App() {
         onToggleReducedMotion={toggleReducedMotion}
         onOpenResume={() => setIsResumeOpen(true)}
         isApiConnected={true}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        isSystemSync={isSystemSync}
       />
       <main className="relative z-10">
         <Hero data={portfolioData.personalInfo} terminalStats={portfolioData.heroTerminalStats} onOpenResume={() => setIsResumeOpen(true)} isReduced={isReduced} />

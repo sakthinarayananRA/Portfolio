@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 
-export default function BackgroundCanvas({ isReduced }) {
+export default function BackgroundCanvas({ isReduced, theme = 'dark' }) {
   const canvasRef = useRef(null);
+  const isLight = theme === 'light';
 
   useEffect(() => {
     if (isReduced) return;
@@ -32,13 +33,17 @@ export default function BackgroundCanvas({ isReduced }) {
     // 1. 3D Stars in spatial depth
     const starCount = Math.min(Math.floor((width * height) / 12000), 110);
     const stars = [];
+    const colors = isLight 
+      ? ['#0284c7', '#2563eb', '#0891b2']
+      : ['#22d3ee', '#3b82f6', '#93c5fd'];
+
     for (let i = 0; i < starCount; i++) {
       stars.push({
         x: (Math.random() - 0.5) * width * 1.8,
         y: (Math.random() - 0.5) * height * 1.8,
         z: Math.random() * 900 + 100,
         speed: Math.random() * 0.8 + 0.3,
-        color: i % 3 === 0 ? '#22d3ee' : i % 3 === 1 ? '#3b82f6' : '#93c5fd',
+        color: colors[i % 3],
         baseRadius: Math.random() * 1.5 + 0.8
       });
     }
@@ -110,7 +115,7 @@ export default function BackgroundCanvas({ isReduced }) {
           ctx.beginPath();
           ctx.arc(px, py, r, 0, Math.PI * 2);
           ctx.fillStyle = s.color;
-          ctx.globalAlpha = depthAlpha;
+          ctx.globalAlpha = isLight ? depthAlpha * 0.6 : depthAlpha;
           ctx.fill();
 
           // Soft glow on closer stars
@@ -118,7 +123,7 @@ export default function BackgroundCanvas({ isReduced }) {
             ctx.beginPath();
             ctx.arc(px, py, r * 2.5, 0, Math.PI * 2);
             ctx.fillStyle = s.color;
-            ctx.globalAlpha = depthAlpha * 0.25;
+            ctx.globalAlpha = depthAlpha * 0.2;
             ctx.fill();
           }
         }
@@ -143,6 +148,7 @@ export default function BackgroundCanvas({ isReduced }) {
 
       // Draw Edges with depth alpha
       ctx.lineWidth = 1;
+      const strokeColor = isLight ? '#0284c7' : '#06b6d4';
       for (let i = 0; i < edges.length; i++) {
         const [idx1, idx2] = edges[i];
         const v1 = projectedVertices[idx1];
@@ -153,19 +159,20 @@ export default function BackgroundCanvas({ isReduced }) {
         ctx.beginPath();
         ctx.moveTo(v1[0], v1[1]);
         ctx.lineTo(v2[0], v2[1]);
-        ctx.strokeStyle = '#06b6d4';
-        ctx.globalAlpha = edgeAlpha;
+        ctx.strokeStyle = strokeColor;
+        ctx.globalAlpha = isLight ? edgeAlpha * 0.8 : edgeAlpha;
         ctx.stroke();
       }
 
       // Draw Vertices
+      const vertColor = isLight ? '#0369a1' : '#38bdf8';
       for (let i = 0; i < projectedVertices.length; i++) {
         const [vx, vy, vz] = projectedVertices[i];
         const vertAlpha = Math.max(0.1, Math.min(0.5, (800 - vz) / 500));
         ctx.beginPath();
         ctx.arc(vx, vy, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#38bdf8';
-        ctx.globalAlpha = vertAlpha;
+        ctx.fillStyle = vertColor;
+        ctx.globalAlpha = isLight ? vertAlpha * 0.8 : vertAlpha;
         ctx.fill();
       }
 
@@ -180,12 +187,12 @@ export default function BackgroundCanvas({ isReduced }) {
       window.removeEventListener('mousemove', handleMouseMove);
       if (animId) cancelAnimationFrame(animId);
     };
-  }, [isReduced]);
+  }, [isReduced, theme, isLight]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0 block w-full h-full opacity-60"
+      className={`fixed inset-0 pointer-events-none z-0 block w-full h-full transition-opacity duration-500 ${isLight ? 'opacity-40' : 'opacity-60'}`}
     />
   );
 }

@@ -52,7 +52,7 @@ export default function About({ data, isReduced }) {
           <Workflow className="w-3.5 h-3.5" />
           <span>Core Engineering DNA</span>
         </div>
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">About <span className="gradient-text-cyan">{info.name?.split(' ')[0] || 'Sakthi'}</span></h2>
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">About <span className="gradient-text-cyan">My Self</span></h2>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
