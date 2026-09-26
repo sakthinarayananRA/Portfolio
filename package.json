@@ -4,7 +4,7 @@
   "description": "Personal Portfolio of Sakthinarayanan R - Software Developer",
   "main": "server/server.js",
   "scripts": {
-    "build": "npm --prefix client install && npm --prefix client run build && npm --prefix server install",
+    "build": "cd client && npm install --include=dev && npm run build && cd ../server && npm install",
     "start": "node server/server.js",
     "dev:client": "npm --prefix client run dev",
     "dev:server": "npm --prefix server run dev",
