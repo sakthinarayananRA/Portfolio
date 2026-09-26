@@ -1,0 +1,13 @@
+[
+  {
+    "id": "INQ-MUHBSVVX-203",
+    "timestamp": "2026-09-25T19:00:28.653Z",
+    "ip": "::1",
+    "name": "Jane Recruiter",
+    "email": "jane@techcorp.com",
+    "subject": "General Inquiry",
+    "projectType": "Full-time / Backend Engineering",
+    "message": "We would love to discuss a Senior Laravel role.",
+    "status": "received"
+  }
+]

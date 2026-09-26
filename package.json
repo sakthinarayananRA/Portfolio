@@ -1,0 +1,32 @@
+{
+  "name": "sakthinarayanan-portfolio",
+  "version": "1.0.0",
+  "description": "Personal Portfolio of Sakthinarayanan R - Software Developer",
+  "main": "server/server.js",
+  "scripts": {
+    "build": "npm --prefix client install && npm --prefix client run build && npm --prefix server install",
+    "start": "node server/server.js",
+    "dev:client": "npm --prefix client run dev",
+    "dev:server": "npm --prefix server run dev",
+    "client": "npm --prefix client run dev",
+    "server": "npm --prefix server run dev"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "portfolio",
+    "software-developer",
+    "python",
+    "fastapi",
+    "django",
+    "flask",
+    "mern-stack",
+    "php",
+    "laravel",
+    "react",
+    "vite"
+  ],
+  "author": "Sakthinarayanan R",
+  "license": "MIT"
+}
